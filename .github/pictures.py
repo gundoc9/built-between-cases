@@ -1,4 +1,4 @@
-# Draws the link-preview card (og-card.png) and the phone picture used on the My work page (phone.webp).
+# Draws the link-preview card (og-card.png), the Home Screen icon (icon.png) and the phone picture used on the My work page (phone.webp).
 # Run by .github/workflows/pages.yml on every upload; the pages are served over a local web server so the stored fonts in fonts/ load.
 import functools, http.server, json, pathlib, re, sys, threading
 from playwright.sync_api import sync_playwright
@@ -29,6 +29,13 @@ with sync_playwright() as p:
     print('card', card.evaluate('d => window.render(d)', summary))
     card.wait_for_timeout(300)
     card.screenshot(path=str(root / 'og-card.png'))
+    icon = browser.new_context(viewport={'width': 180, 'height': 180}, device_scale_factor=3).new_page()
+    icon.goto(base + '.github/icon.html', wait_until='networkidle')
+    print('icon', icon.evaluate('d => window.render(d)', summary))
+    icon.wait_for_timeout(200)
+    big = root / '.github' / 'icon-540.png'
+    icon.screenshot(path=str(big))
+    Image.open(big).convert('RGB').resize((180, 180), Image.LANCZOS).save(root / 'icon.png', optimize=True)
     phone = browser.new_context(viewport={'width': 390, 'height': 844}, device_scale_factor=2, color_scheme='light').new_page()
     phone.goto(base + 'index.html', wait_until='networkidle')
     phone.evaluate('document.fonts.ready.then(() => 0)')

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../fonts/fonts.css">
+<style>
+html,body{margin:0}
+body{width:180px;height:180px;overflow:hidden;position:relative;background:#13202A;-webkit-font-smoothing:antialiased}
+h1{position:absolute;left:18px;top:24px;margin:0;font-family:Spectral,Georgia,serif;font-weight:600;font-size:37px;line-height:.93;letter-spacing:-.02em;color:#F3F5F2;white-space:nowrap}
+.ribbon{position:absolute;left:0;right:0;bottom:0;height:24px;display:flex;gap:2px}
+.ribbon i{display:block;height:100%}
+</style>
+</head>
+<body>
+<h1 id="h">Built<br>Between<br>Cases</h1>
+<div class="ribbon" id="ribbon"></div>
+<script>
+const LIGHT = {'#076772': '#40BECF', '#735603': '#CBA553', '#863F61': '#E08DB2', '#6E4885': '#C296DD', '#195F91': '#6CB2EC',
+  '#8C4039': '#E88F85', '#505294': '#9DA3EF', '#85490F': '#DF9962', '#5D6002': '#ACB25C', '#216B3C': '#73BF88'};
+window.render = async (d) => {
+  document.getElementById('ribbon').replaceChildren(...d.areas.map(([label, n, colour]) => {
+    const i = document.createElement('i'); i.style.flex = n + ' 1 0'; i.style.background = LIGHT[colour.toUpperCase()] || colour; return i;
+  }));
+  await document.fonts.ready;
+  const h = document.getElementById('h');
+  let size = 37;
+  while (h.getBoundingClientRect().width > 180 - 36 && size > 26) { size -= 1; h.style.fontSize = size + 'px'; }
+  const room = 180 - 24, box = h.getBoundingClientRect();
+  h.style.top = Math.round((room - box.height) / 2) + 'px';
+  const b = h.getBoundingClientRect();
+  return {size, box: [Math.round(b.left), Math.round(b.top), Math.round(b.right), Math.round(b.bottom)]};
+};
+</script>
+</body>
+</html>

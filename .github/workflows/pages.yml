@@ -1,0 +1,42 @@
+name: Publish
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Draw the link preview and the phone picture
+        continue-on-error: true
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq fonts-noto-color-emoji
+          pip install -q playwright==1.48.2 pillow==11.0.0
+          python -m playwright install --with-deps chromium
+          python .github/pictures.py
+      - name: Gather the site
+        run: |
+          mkdir _site
+          cp index.html _site/
+          for f in og-card.png phone.webp; do if [ -f "$f" ]; then cp "$f" _site/; fi; done
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deploy
+        uses: actions/deploy-pages@v5

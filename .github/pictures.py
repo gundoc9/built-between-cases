@@ -1,6 +1,6 @@
 # Draws the link-preview card (og-card.png) and the phone picture used on the My work page (phone.webp).
-# Run by .github/workflows/pages.yml on every upload; the fonts load from Google as on the live page.
-import json, pathlib, re, sys
+# Run by .github/workflows/pages.yml on every upload; the pages are served over a local web server so the stored fonts in fonts/ load.
+import functools, http.server, json, pathlib, re, sys, threading
 from playwright.sync_api import sync_playwright
 from PIL import Image
 
@@ -18,15 +18,19 @@ summary = {
     'countries': len({t['cc'] for t in tools if t.get('cc')}),
     'areas': [[label, n, colour] for key, label, colour in AREAS if (n := sum(1 for t in tools if t['areas'][0] == key))],
 }
+handler = functools.partial(http.server.SimpleHTTPRequestHandler, directory=str(root))
+server = http.server.ThreadingHTTPServer(('127.0.0.1', 0), handler)
+threading.Thread(target=server.serve_forever, daemon=True).start()
+base = f'http://127.0.0.1:{server.server_address[1]}/'
 with sync_playwright() as p:
     browser = p.chromium.launch()
     card = browser.new_page(viewport={'width': 1200, 'height': 630})
-    card.goto((root / '.github' / 'og.html').as_uri(), wait_until='networkidle')
+    card.goto(base + '.github/og.html', wait_until='networkidle')
     print('card', card.evaluate('d => window.render(d)', summary))
     card.wait_for_timeout(300)
     card.screenshot(path=str(root / 'og-card.png'))
     phone = browser.new_context(viewport={'width': 390, 'height': 844}, device_scale_factor=2, color_scheme='light').new_page()
-    phone.goto(page.as_uri(), wait_until='networkidle')
+    phone.goto(base + 'index.html', wait_until='networkidle')
     phone.evaluate('document.fonts.ready.then(() => 0)')
     phone.add_style_tag(content='.controls{display:none!important}')
     phone.wait_for_timeout(400)
@@ -34,4 +38,5 @@ with sync_playwright() as p:
     phone.screenshot(path=str(shot), clip={'x': 0, 'y': 0, 'width': 390, 'height': 487.5})
     Image.open(shot).convert('RGB').resize((592, 740), Image.LANCZOS).save(root / 'phone.webp', 'WEBP', quality=86, method=6)
     browser.close()
+server.shutdown()
 print('done', summary['tools'], 'tools')

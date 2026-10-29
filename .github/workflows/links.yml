@@ -1,0 +1,30 @@
+name: Check links
+on:
+  schedule:
+    - cron: '17 6 1 * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/check_links.py'
+      - '.github/workflows/links.yml'
+permissions:
+  contents: read
+  issues: write
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Open every tool link
+        run: python .github/check_links.py
+        env:
+          REPORT_ONLY: ${{ github.event_name == 'push' }}
+      - name: Open an issue listing the links that no longer open
+        if: failure() && github.event_name != 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh issue create --repo "$GITHUB_REPOSITORY" --title "Links that no longer open, $(date -u '+%B %Y')" --body-file links-report.md

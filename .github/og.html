@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,600;1,400&family=Red+Hat+Text:wght@500;700&family=B612+Mono:wght@400;700&display=block">
+<style>
+html,body{margin:0}
+body{width:1200px;height:630px;overflow:hidden;box-sizing:border-box;padding:62px 72px 58px;display:grid;grid-template-columns:minmax(0,1fr) 420px;gap:60px;background:#E6E9E8;color:#13202A;font-family:"Red Hat Text",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.l{display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.mark{font-family:"B612 Mono",monospace;font-size:19px;color:#4D5964}
+h1{font-family:Spectral,Georgia,serif;font-weight:600;font-size:88px;line-height:.98;letter-spacing:-.02em;margin:28px 0 0}
+.sub{font-family:Spectral,Georgia,serif;font-style:italic;font-size:30px;line-height:1.3;margin:22px 0 0}
+.foot{margin-top:auto;padding-top:18px;border-top:2px solid #13202A;font-family:"B612 Mono",monospace;font-size:19px;line-height:1.5;color:#4D5964}
+.foot b{color:#13202A;font-weight:700}
+.bands{display:flex;flex-direction:column;justify-content:center;gap:7px}
+.b{display:flex;justify-content:space-between;align-items:center;gap:12px;height:43px;padding:0 16px;border-radius:6px;color:#F7F9F8;font-weight:700;font-size:20px;white-space:nowrap}
+.b .n{font-family:"B612 Mono",monospace;font-weight:400;font-size:19px}
+</style>
+</head>
+<body>
+<div class="l" id="l">
+  <div class="mark">ganeshsivasankara.com/built-between-cases</div>
+  <h1 id="h">Built Between Cases</h1>
+  <p class="sub">Tools for anaesthesia and intensive care, built by clinicians, most of them with AI.</p>
+  <div class="foot"><b id="totals"></b><br>Curated by Dr Ganesh Sivasankara</div>
+</div>
+<div class="bands" id="bands"></div>
+<script>
+window.render = async (d) => {
+  document.getElementById('totals').textContent = d.tools + ' tools · ' + d.makers + ' makers · ' + d.countries + ' countries';
+  const bands = document.getElementById('bands');
+  bands.replaceChildren(...d.areas.map(([label, n, colour]) => {
+    const b = document.createElement('div'); b.className = 'b'; b.style.background = colour;
+    const a = document.createElement('span'); a.textContent = label;
+    const c = document.createElement('span'); c.className = 'n'; c.textContent = n;
+    b.append(a, c); return b;
+  }));
+  await document.fonts.ready;
+  const l = document.getElementById('l'), h = document.getElementById('h');
+  let size = 88;
+  while (l.scrollHeight > l.clientHeight + 1 && size > 56) { size -= 2; h.style.fontSize = size + 'px'; }
+  return {size, fits: l.scrollHeight <= l.clientHeight + 1, fonts: [...document.fonts].filter(f => f.status === 'loaded').map(f => f.family + ' ' + f.weight + ' ' + f.style)};
+};
+</script>
+</body>
+</html>

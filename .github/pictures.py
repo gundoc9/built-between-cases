@@ -7,7 +7,7 @@ from PIL import Image
 root = pathlib.Path(__file__).resolve().parent.parent
 page = root / 'index.html'
 data = json.loads(re.search(r'<script id="hub-data" type="application/json">(.*?)</script>', page.read_text(encoding='utf-8'), re.S).group(1))
-tools = data['tools']
+tools = [t for t in data['tools'] if not t.get('mine')]  # the curator's own are listed separately and left out of the counts
 AREAS = [('airway', 'Airway', '#076772'), ('regional', 'Regional & access', '#735603'), ('drugs', 'Drugs & TIVA', '#863F61'),
          ('eeg', 'EEG & monitors', '#6E4885'), ('vent', 'Ventilation', '#195F91'), ('heart', 'Heart, blood & echo', '#8C4039'),
          ('icu', 'Intensive care', '#505294'), ('safety', 'Crisis & safety', '#85490F'), ('periop', 'Before & after surgery', '#5D6002'),

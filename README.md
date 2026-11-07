@@ -1,6 +1,6 @@
 # Built Between Cases
 
-Tools for anaesthesia and intensive care, built by clinicians, most of them with AI. Each one opened and checked, with its maker named.
+Tools for anaesthesia and intensive care, built by clinicians, many of them with AI. Each one opened and checked, with its maker named.
 
 Live at https://ganeshsivasankara.com/built-between-cases/
 
